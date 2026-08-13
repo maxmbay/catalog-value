@@ -7,6 +7,40 @@ step-by-step model at three levels of detail — is
 
 This page is the short web version: take-home plus figures.
 
+## How the model is wired
+
+Two networks are trained (the taste-token encoder and a content MLP).
+Coverage $V(S)$ and MCV are **formulas** on frozen embeddings, not a
+third network. The pictures:
+
+1. Whole system (what is trained vs what is a readout)
+2. Encoder internals (eight queries attend over a user's movie *set*)
+3. Valuation (dot product $\to$ soft-OR $\to$ MCV)
+
+![System DAG](figures/architecture/system_dag.png)
+
+![Taste-token encoder](figures/architecture/encoder.png)
+
+![Valuation readout](figures/architecture/valuation.png)
+
+```mermaid
+flowchart LR
+  D[Ratings D] --> Enc[Taste-token encoder]
+  X[Tags genre year] --> MLP[Content MLP]
+  Enc --> Zu["π_u, z_uk"]
+  Enc --> Zi["z_i, b_i"]
+  MLP --> F["f(X_i)"]
+  Zi --> Post["μ_i, σ_i²"]
+  F --> Post
+  Zu --> A["a_uki"]
+  Post --> A
+  S[Catalog S] --> A
+  A --> V["V(S)"]
+  V --> MCV["MCV_i(S)"]
+  S --> MCV
+  MCV --> PACV["PACV / greedy"]
+```
+
 You can read this at three depths. The first paragraph of each section is
 the whole point. The rest adds industry context, then the modeling.
 Drawers at the bottom of a section are optional math.

@@ -170,6 +170,33 @@ Data: MovieLens 25M, filtered to users with $\ge 20$ ratings and movies with $\g
 
 Not trained: a model of churn, price, or complementarity. Not used: posters, trailers, plot text, or internal streaming logs.
 
+# Architecture
+
+Three pictures. The first is the whole system. The second is the neural net that is actually trained. The third is the coverage formula that runs after training stops.
+
+**Plain.** There are two trained networks (blue). Everything yellow is arithmetic on top of their outputs. Gradients never enter $V$ or MCV.
+
+**For a data scientist.** Taste-token encoder: shared item table + 8 learned queries + MHA over a user's title *set* $\to$ $(\pi_u, z_{uk})$ and $z_i$. Content MLP: $X_i \to f(X_i)$, then Gaussian shrinkage with collaborative $z_i$. Valuation: $a_{uki}=z_{uk}^\top z_i+b_i$, then log-sum-exp coverage, then finite differences for MCV.
+
+![System DAG: data to networks to frozen states to readout.](figures/architecture/system_dag.png){width=98%}
+
+![Taste-token encoder: queries attend over a history set and predict held-out ratings.](figures/architecture/encoder.png){width=98%}
+
+![Valuation readout: affinities, soft-OR coverage, MCV, PACV, greedy.](figures/architecture/valuation.png){width=98%}
+
+Shapes in the code (batch $B$, history length $L\le 64$, $K=8$, $d=64$, catalog size $n$):
+
+| Tensor | Shape | Role |
+| --- | --- | --- |
+| `history` | $[B, L]$ | movie rows in the user's set |
+| `item_emb` | $[N+1, 64]$ | shared title table (last row is pad) |
+| `taste_queries` | $[8, 64]$ | global $q_k$, not per user |
+| `z` (user) | $[B, 8, 64]$ | $z_{uk}$ after attention + residual + LN |
+| `pi` | $[B, 8]$ | simplex mix, rows sum to 1 |
+| `z` (title) | $[N, 64]$ | $z_i$ used at valuation time |
+| `affinity` | $[U, 8, n]$ | $a_{uki}$ for a catalog of $n$ titles |
+| `V_u` | $[U]$ | coverage of $S$ for each eval user |
+
 # The model, step by step
 
 The pipeline, in order:
