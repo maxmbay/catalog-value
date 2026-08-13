@@ -8,6 +8,7 @@ from catalog_value.config import load_config
 from catalog_value.data.env import load_dotenv
 from catalog_value.phase_a import run_figure1, run_fit, run_ingest, run_phase_a
 from catalog_value.phase_b import run_phase_b
+from catalog_value.phase_c import run_phase_c
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -37,8 +38,8 @@ def main(argv: list[str] | None = None) -> None:
         help="Score Netflix/Disney+/Prime/Max/Hulu catalogs under V(S) and MCV",
     )
     sub.add_parser(
-        "phase-b",
-        help="Train a content encoder, form title posteriors, and evaluate cold-start MCV",
+        "phase-c",
+        help="Map US streaming catalogs onto the learned title space and compare coverage",
     )
     args = parser.parse_args(argv)
     config = load_config(args.config)
@@ -57,6 +58,8 @@ def main(argv: list[str] | None = None) -> None:
         run_compare_catalogs(config)
     elif args.command == "phase-b":
         run_phase_b(config)
+    elif args.command == "phase-c":
+        run_phase_c(config)
     else:
         raise ValueError(args.command)
 

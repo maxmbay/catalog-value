@@ -116,6 +116,7 @@ Or all three:
 ```bash
 uv run python -m catalog_value phase-a
 uv run python -m catalog_value phase-b
+uv run python -m catalog_value phase-c
 ```
 
 `phase-b` trains a genome-tag content encoder, shrinks collaborative embeddings toward that prior, and reports cold-start MCV.
