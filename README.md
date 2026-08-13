@@ -10,11 +10,11 @@ construct counterfactual content portfolios.
 
 The primary modeling target is
 
-\[
+```math
 p(\mathrm{MCV}_i(S) \mid D),\qquad \mathrm{MCV}_i(S) = V(S \cup \{i\}) - V(S)
-\]
+```
 
-not \(P(\text{viewer watches } i)\) or \(E[\text{rating}]\) alone.
+not $P(\text{viewer watches } i)$ or $E[\text{rating}]$ alone.
 
 ## What the model estimates
 
@@ -32,9 +32,9 @@ relative to the observed Netflix-US catalog.*
 
 ## Four learned objects
 
-1. **Audience** → mixture of latent demand states \(Z_u = \{(\pi_{uk}, z_{uk})\}\)
-2. **Content** → probabilistic title representation \(z_i \sim p(z_i \mid D)\)
-3. **Audience states + catalog** → catalog utility \(V(S)\)
+1. **Audience** → mixture of latent demand states $`Z_u = \{(\pi_{uk}, z_{uk})\}`$
+2. **Content** → probabilistic title representation $`z_i \sim p(z_i \mid D)`$
+3. **Audience states + catalog** → catalog utility $`V(S)`$
 4. **Catalog-utility posterior** → portfolio decisions
 
 Phase A implements (1)–(3) with a collaborative SVD backbone, per-user taste
