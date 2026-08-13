@@ -1,5 +1,12 @@
 # What the model found
 
+The full document — motivation, what *value* means, assumptions, and a
+step-by-step model at three levels of detail — is
+[`docs/report.md`](report.md), rendered as
+**[catalog-value.pdf](catalog-value.pdf)** (21 pages).
+
+This page is the short web version: take-home plus figures.
+
 You can read this at three depths. The first paragraph of each section is
 the whole point. The rest adds industry context, then the modeling.
 Drawers at the bottom of a section are optional math.
