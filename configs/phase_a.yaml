@@ -1,0 +1,23 @@
+# Phase A: collaborative backbone + analytical catalog utility.
+# Goal: show that popularity and marginal catalog value are different quantities.
+
+seed: 0
+
+data:
+  movielens_url: "https://files.grouplens.org/datasets/movielens/ml-25m.zip"
+  min_user_ratings: 20
+  min_movie_ratings: 50
+
+representation:
+  embedding_dim: 64
+  n_interests: 8
+
+catalog_value:
+  tau: 0.5
+  n_eval_users: 4000
+
+phase_a:
+  # Existing catalog: most-rated titles. Candidates are the next tier.
+  catalog_size: 500
+  n_candidates: 1500
+  n_annotate: 12

@@ -1,0 +1,26 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Data and run artifacts (snapshots are tracked separately when needed)
+data/raw/**
+data/intermediate/**
+data/processed/**
+!data/raw/.gitkeep
+!data/intermediate/.gitkeep
+!data/processed/.gitkeep
+outputs/
+mlruns/
+.mlflow/
+
+.DS_Store
+*.swp
+.env
+.env.*
+!.env.example

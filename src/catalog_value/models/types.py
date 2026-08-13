@@ -1,0 +1,58 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+import numpy as np
+from numpy.typing import NDArray
+
+FloatArray = NDArray[np.float64]
+IntArray = NDArray[np.int64]
+
+
+@dataclass
+class AudienceStates:
+    """Multi-interest user representation Z_u = {(π_uk, z_uk)}.
+
+    Attributes
+    ----------
+    pi:
+        Mixing weights, shape ``[n_users, n_interests]``, rows sum to 1.
+    z:
+        Taste embeddings, shape ``[n_users, n_interests, dim]``.
+    user_row:
+        Row index into the collaborative user factor matrix (for joins).
+    """
+
+    pi: FloatArray
+    z: FloatArray
+    user_row: IntArray
+
+    def __post_init__(self) -> None:
+        n_users, k = self.pi.shape
+        if self.z.shape[:2] != (n_users, k):
+            raise ValueError(f"pi {self.pi.shape} incompatible with z {self.z.shape}")
+        if self.user_row.shape != (n_users,):
+            raise ValueError("user_row must be [n_users]")
+
+
+@dataclass
+class TitleReps:
+    """Point title representations. Later: replace with (μ, Σ) posteriors."""
+
+    z: FloatArray
+    bias: FloatArray
+    movie_row: IntArray
+
+    def __post_init__(self) -> None:
+        n = self.z.shape[0]
+        if self.bias.shape != (n,) or self.movie_row.shape != (n,):
+            raise ValueError("z, bias, movie_row must share leading dimension")
+
+
+@dataclass
+class CatalogValueEstimate:
+    """V(S) and optional per-user values. Later: posterior mean/variance."""
+
+    mean: float
+    per_user: FloatArray | None = None
+    variance: float | None = None
