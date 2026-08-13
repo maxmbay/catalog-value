@@ -436,4 +436,11 @@ uv run python -m catalog_value phase-c
 uv run python -m catalog_value phase-d
 ```
 
-Config: `configs/phase_a.yaml`. Tests: `uv run pytest` (no MovieLens download). This PDF is built from `docs/report.md`.
+Config: `configs/phase_a.yaml`. Tests: `uv run pytest` (no MovieLens download).
+
+Rebuild this PDF:
+
+```
+pandoc docs/report.md -o docs/catalog-value.pdf --pdf-engine=xelatex \
+  --resource-path=docs --toc --toc-depth=2 -V colorlinks=true
+```
