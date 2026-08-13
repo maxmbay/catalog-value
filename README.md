@@ -117,8 +117,9 @@ Or all three:
 uv run python -m catalog_value phase-a
 ```
 
-Artifacts land in `outputs/phase_a/`. A narrative of what that checkpoint
-found, with embedding probes, is in [`docs/story.md`](docs/story.md).
+Artifacts land in `outputs/phase_a/`. Published figures live in
+`docs/figures/phase_a/`. A narrative of what that checkpoint found is in
+[`docs/story.md`](docs/story.md).
 Tests (no MovieLens download required):
 
 ```bash
@@ -147,7 +148,7 @@ tests/
 
 | Phase | Scientific question | Status |
 | --- | --- | --- |
-| A | Are popularity and MCV different? | in progress |
+| A | Are popularity and MCV different? | done |
 | B | Do probabilistic / content representations change MCV under cold start? | next |
 | C | Do real U.S. streaming catalogs occupy different audience regions? | later |
 | D | Ablations, PACV, fairness, risk frontiers, write-up | later |
