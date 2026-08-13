@@ -85,7 +85,7 @@ is drawn in `docs/figures/architecture/` and walked in
 
 Phase A implements (1)–(3) with a **taste-token transformer** audience encoder
 (K learned queries over each user's title set), learned title embeddings, and
-an analytical log-sum-exp coverage function. Later phases add a genome-tag
+an analytical log-sum-exp coverage function. Phases B–D add a genome-tag
 content encoder and title posteriors, map real US catalogs onto that space,
 and estimate PACV / greedy portfolios. An SVD + k-means backbone remains as
 an ablation (`train.backbone: svd`).
@@ -106,18 +106,26 @@ Requires [uv](https://docs.astral.sh/uv/). Python 3.12.
 Bootstrap copies `.env.example` → `.env` if needed, installs [direnv](https://direnv.net/), and hooks **bash** (`~/.bashrc`, login via `~/.bash_profile`) and **zsh** (`~/.zshrc`) so `.env` is loaded when you `cd` into the repo. Put your TMDB key in `.env` (never commit it).
 
 ## Run
+
+```bash
+uv run python -m catalog_value ingest
 uv run python -m catalog_value fit
 uv run python -m catalog_value phase-a   # popularity vs MCV + title atlas
 uv run python -m catalog_value phase-b   # content encoder, posteriors, cold start
+uv run python -m catalog_value snapshot-catalogs   # needs TMDB_API_KEY
 uv run python -m catalog_value phase-c   # US catalogs on the title map
 uv run python -m catalog_value phase-d   # PACV, greedy portfolios, ablations
 ```
 
-`phase-b` needs MovieLens genome tags (written by `ingest`). `phase-c` needs a
-TMDB watch-provider snapshot (`snapshot-catalogs`).
+`phase-a` downloads MovieLens if needed. `phase-b` needs genome tags (written
+by `ingest`). `phase-c` needs a TMDB watch-provider snapshot
+(`snapshot-catalogs`). Optional: `figure1` (scatter only) and
+`compare-catalogs` (V(S) / MCV for Netflix, Disney+, Prime, Max, Hulu).
 
-Artifacts land in `outputs/`. Published figures live in `docs/figures/`.
-The write-up is [`docs/story.md`](docs/story.md).
+Artifacts land in `outputs/`. Published figures live in `docs/figures/`
+(phase plots plus `architecture/`). The short take-home is
+[`docs/story.md`](docs/story.md); the printable report is
+[`docs/catalog-value.pdf`](docs/catalog-value.pdf).
 Tests (no MovieLens download required):
 
 ```bash
@@ -132,13 +140,15 @@ data/{raw,intermediate,processed}/
 docs/report.md          full write-up (source of the PDF)
 docs/catalog-value.pdf  printable report
 docs/story.md           short take-home with figures
+docs/model.md           compact formalization
+docs/figures/           phase plots and architecture DAGs
 src/catalog_value/
-  data/                 MovieLens ingest
-  models/audience/      multi-interest user states
+  data/                 MovieLens ingest + TMDB watch-provider snapshot
+  models/audience/      taste-token encoder (SVD + k-means ablation)
   models/content/       collaborative + genome content encoder
   models/catalog_value/ coverage, MCV, PACV
   optimization/         greedy MCV portfolios
-  visualization/
+  visualization/        phase plots, atlas, architecture figures
 experiments/            probes and catalog scoring scripts
 tests/
 ```
@@ -150,4 +160,4 @@ tests/
 | A | Are popularity and MCV different? | done |
 | B | Do probabilistic / content representations change MCV under cold start? | done |
 | C | Do real U.S. streaming catalogs occupy different audience regions? | done |
-| D | Ablations, PACV, fairness, risk frontiers, write-up | done |
+| D | Do PACV, greedy portfolios, and backbone ablations change the ranking? | done |
