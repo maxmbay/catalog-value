@@ -1,1 +1,1 @@
-"""Collaborative title representations (Phase A: truncated SVD)."""
+"""Collaborative and content title representations."""

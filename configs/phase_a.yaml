@@ -22,6 +22,21 @@ phase_a:
   n_candidates: 1500
   n_annotate: 12
 
+phase_b:
+  holdout_frac: 0.2
+  min_train_ratings: 200
+  epochs: 80
+  hidden: 256
+  lr: 0.001
+  n0: 400
+  n_posterior_samples: 16
+
+phase_d:
+  n_shapley_catalogs: 80
+  shapley_catalog_size: 60
+  n_shapley_candidates: 40
+  greedy_size: 40
+
 train:
   backbone: taste_tokens
   batch_size: 256

@@ -115,10 +115,13 @@ Or all three:
 
 ```bash
 uv run python -m catalog_value phase-a
+uv run python -m catalog_value phase-b
 ```
 
-Artifacts land in `outputs/phase_a/`. Published figures live in
-`docs/figures/phase_a/`. A narrative of what that checkpoint found is in
+`phase-b` trains a genome-tag content encoder, shrinks collaborative embeddings toward that prior, and reports cold-start MCV.
+
+Artifacts land in `outputs/phase_a/` and `outputs/phase_b/`. Published figures live in
+`docs/figures/`. A narrative of what the checkpoints found is in
 [`docs/story.md`](docs/story.md).
 Tests (no MovieLens download required):
 
@@ -149,6 +152,6 @@ tests/
 | Phase | Scientific question | Status |
 | --- | --- | --- |
 | A | Are popularity and MCV different? | done |
-| B | Do probabilistic / content representations change MCV under cold start? | next |
+| B | Do probabilistic / content representations change MCV under cold start? | done |
 | C | Do real U.S. streaming catalogs occupy different audience regions? | later |
 | D | Ablations, PACV, fairness, risk frontiers, write-up | later |

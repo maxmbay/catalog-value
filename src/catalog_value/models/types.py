@@ -37,7 +37,7 @@ class AudienceStates:
 
 @dataclass
 class TitleReps:
-    """Point title representations. Later: replace with (μ, Σ) posteriors."""
+    """Point title representations."""
 
     z: FloatArray
     bias: FloatArray
@@ -47,6 +47,29 @@ class TitleReps:
         n = self.z.shape[0]
         if self.bias.shape != (n,) or self.movie_row.shape != (n,):
             raise ValueError("z, bias, movie_row must share leading dimension")
+
+
+@dataclass
+class TitlePosterior:
+    """Isotropic Gaussian posterior over title embeddings: z_i ~ N(μ_i, σ_i² I)."""
+
+    mu: FloatArray
+    var: FloatArray
+    bias: FloatArray
+    movie_row: IntArray
+
+    def __post_init__(self) -> None:
+        n = self.mu.shape[0]
+        if self.var.shape != (n,) or self.bias.shape != (n,) or self.movie_row.shape != (n,):
+            raise ValueError("mu, var, bias, movie_row must share leading dimension")
+
+    def mean_reps(self) -> TitleReps:
+        return TitleReps(z=self.mu, bias=self.bias, movie_row=self.movie_row)
+
+    def sample(self, rng: np.random.Generator) -> TitleReps:
+        noise = rng.normal(size=self.mu.shape)
+        z = self.mu + noise * np.sqrt(self.var)[:, None]
+        return TitleReps(z=z, bias=self.bias, movie_row=self.movie_row)
 
 
 @dataclass
