@@ -37,6 +37,48 @@ relative to the observed Netflix-US catalog.*
 3. **Audience states + catalog** → catalog utility $`V(S)`$
 4. **Catalog-utility posterior** → portfolio decisions
 
+```mermaid
+flowchart TD
+  subgraph data [Data]
+    ratings["Ratings and viewing history"]
+    features["Title content X_i"]
+    catalog["Catalog S"]
+  end
+
+  subgraph audienceObj [Audience]
+    audienceEnc["Multi-interest encoder"]
+    tastes["Z_u mixture of latent tastes"]
+  end
+
+  subgraph contentObj [Content]
+    titleEnc["Hybrid / cold-start encoder"]
+    zpost["p(z_i | D)"]
+  end
+
+  subgraph valueObj [Catalog value]
+    affinity["Affinity a_uki"]
+    utility["V(S)"]
+    mcv["p(MCV_i(S) | D)"]
+  end
+
+  subgraph decisionObj [Decisions]
+    pacv["PACV / Shapley φ_i"]
+    opt["Portfolio optimization"]
+  end
+
+  ratings --> audienceEnc --> tastes
+  ratings --> titleEnc
+  features --> titleEnc --> zpost
+  tastes --> affinity
+  zpost --> affinity
+  catalog --> affinity
+  affinity --> utility --> mcv
+  utility --> pacv
+  mcv --> pacv
+  mcv --> opt
+  pacv --> opt
+```
+
 Phase A implements (1)–(3) with a collaborative SVD backbone, per-user taste
 mixtures, and an analytical log-sum-exp coverage function. Later phases add
 amortized content encoders, Bayesian title posteriors, complementarity,
