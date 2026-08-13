@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -23,9 +24,17 @@ from catalog_value.models.content.svd import (
     save_fit,
     title_reps_from_fit,
 )
-from catalog_value.models.types import TitleReps
+from catalog_value.models.types import AudienceStates, TitleReps
 from catalog_value.paths import output_dir
-from catalog_value.visualization.figures import plot_popularity_vs_mcv
+from catalog_value.visualization.atlas import fit_atlas, save_atlas
+from catalog_value.visualization.phase_a import (
+    plot_diminishing_returns,
+    plot_mcv_on_atlas,
+    plot_neighbor_strips,
+    plot_popularity_vs_mcv,
+    plot_title_atlas,
+)
+from catalog_value.visualization.style import figures_dir
 
 ARTIFACTS = "phase_a"
 
@@ -178,6 +187,7 @@ def run_figure1(config: Config) -> Path:
     print(f"Wrote {csv_path}")
     print(f"Wrote {fig_path}")
     _print_quadrant_examples(table)
+    _write_phase_a_maps(movies, titles, audience, table, catalog, out)
     return fig_path
 
 
@@ -199,6 +209,102 @@ def _print_quadrant_examples(table: pl.DataFrame) -> None:
             rows = subset.sort("mcv").head(3)
         for row in rows.iter_rows(named=True):
             print(f"  {row['title']}: n={row['n_ratings']:,}  MCV={row['mcv']:.4f}")
+
+
+def _write_phase_a_maps(
+    movies: pl.DataFrame,
+    titles: TitleReps,
+    audience: AudienceStates,
+    mcv_table: pl.DataFrame,
+    catalog: np.ndarray,
+    out: Path,
+) -> None:
+    xy, pca = fit_atlas(titles.z)
+    save_atlas(out / "title_atlas.npz", xy, pca.explained_variance_ratio_)
+    published = figures_dir("phase_a")
+    atlas = plot_title_atlas(
+        movies, xy, pca.explained_variance_ratio_, catalog, out / "atlas.png"
+    )
+    landscape = plot_mcv_on_atlas(
+        movies, xy, mcv_table, catalog, out / "mcv_landscape.png"
+    )
+    probes = [
+        "Super Mario Bros. (1993)",
+        "Paths of Glory (1957)",
+        "Halloween (1978)",
+        "Toy Story (1995)",
+    ]
+    panels = []
+    for name in probes:
+        table = _neighbor_table(movies, titles.z, name)
+        if table is not None:
+            panels.append((name, table))
+    neighbors = plot_neighbor_strips(panels, out / "neighbors.png")
+    action = _rows_for(
+        movies,
+        "Die Hard (1988)",
+        "Die Hard 2 (1990)",
+        "Die Hard: With a Vengeance (1995)",
+        "Lethal Weapon (1987)",
+        "Terminator 2: Judgment Day (1991)",
+    )
+    mixed = _rows_for(
+        movies,
+        "Die Hard (1988)",
+        "Toy Story (1995)",
+        "Silence of the Lambs, The (1991)",
+        "When Harry Met Sally... (1989)",
+        "Planet Earth (2006)",
+    )
+    action_v = _coverage_curve(audience, titles, action)
+    mixed_v = _coverage_curve(audience, titles, mixed)
+    diminishing = plot_diminishing_returns(
+        list(range(1, len(action_v) + 1)),
+        action_v,
+        mixed_v,
+        out / "diminishing_returns.png",
+    )
+    for src in (atlas, landscape, neighbors, diminishing, out / "figure1_popularity_vs_mcv.png"):
+        dest = published / src.name
+        shutil.copy2(src, dest)
+        print(f"Wrote {dest}")
+
+
+def _rows_for(movies: pl.DataFrame, *names: str) -> np.ndarray:
+    title_to_row = {
+        t: int(r) for t, r in zip(movies["title"].to_list(), movies["movie_row"].to_list())
+    }
+    return np.array([title_to_row[n] for n in names if n in title_to_row], dtype=np.int64)
+
+
+def _coverage_curve(
+    audience: AudienceStates, titles: TitleReps, order: np.ndarray, tau: float = 0.5
+) -> list[float]:
+    return [value_of_catalog(audience, titles, order[:n], tau).mean for n in range(1, len(order) + 1)]
+
+
+def _neighbor_table(
+    movies: pl.DataFrame, z: np.ndarray, name: str, k: int = 6, min_ratings: int = 2000
+) -> pl.DataFrame | None:
+    hit = movies.filter(pl.col("title") == name)
+    if hit.is_empty():
+        return None
+    idx = int(hit["movie_row"][0])
+    unit = z / np.linalg.norm(z, axis=1, keepdims=True).clip(min=1e-8)
+    scores = unit @ unit[idx]
+    scores[idx] = -np.inf
+    popular = set(
+        int(r) for r in movies.filter(pl.col("n_ratings") >= min_ratings)["movie_row"].to_list()
+    )
+    ranked = [int(i) for i in np.argsort(scores)[::-1] if int(i) in popular][:k]
+    return pl.DataFrame(
+        {
+            "title": [
+                movies.filter(pl.col("movie_row") == i)["title"][0] for i in ranked
+            ],
+            "cosine": [float(scores[i]) for i in ranked],
+        }
+    )
 
 
 def _fit_artifact(config: Config) -> Path:

@@ -81,14 +81,13 @@ flowchart TD
 
 Phase A implements (1)–(3) with a **taste-token transformer** audience encoder
 (K learned queries over each user's title set), learned title embeddings, and
-an analytical log-sum-exp coverage function. An SVD + k-means backbone remains
-as an ablation (`train.backbone: svd`). Later phases add amortized content
-encoders, Bayesian title posteriors, complementarity, real streaming catalogs,
-Shapley/PACV, and uncertainty-aware optimization.
+an analytical log-sum-exp coverage function. Later phases add a genome-tag
+content encoder and title posteriors, map real US catalogs onto that space,
+and estimate PACV / greedy portfolios. An SVD + k-means backbone remains as
+an ablation (`train.backbone: svd`).
 
 See `docs/model.md` for the compact formalization and
-[`docs/story.md`](docs/story.md) for a walkthrough of what a trained
-Phase A checkpoint is actually saying — especially the embeddings.
+[`docs/story.md`](docs/story.md) for what the trained checkpoints are saying.
 
 ## Setup
 
@@ -100,25 +99,19 @@ Requires [uv](https://docs.astral.sh/uv/). Python 3.12.
 
 Bootstrap copies `.env.example` → `.env` if needed, installs [direnv](https://direnv.net/), and hooks **bash** (`~/.bashrc`, login via `~/.bash_profile`) and **zsh** (`~/.zshrc`) so `.env` is loaded when you `cd` into the repo. Put your TMDB key in `.env` (never commit it).
 
-## Phase A
-
-Learn multi-interest user representations from MovieLens 25M, value a popular
-catalog with a submodular coverage function, and plot **popularity vs MCV**.
-
-```bash
-uv run python -m catalog_value ingest
+## Run
 uv run python -m catalog_value fit
-uv run python -m catalog_value figure1
+uv run python -m catalog_value phase-a   # popularity vs MCV + title atlas
+uv run python -m catalog_value phase-b   # content encoder, posteriors, cold start
+uv run python -m catalog_value phase-c   # US catalogs on the title map
+uv run python -m catalog_value phase-d   # PACV, greedy portfolios, ablations
 ```
 
-Or all three:
+`phase-b` needs MovieLens genome tags (written by `ingest`). `phase-c` needs a
+TMDB watch-provider snapshot (`snapshot-catalogs`).
 
-```bash
-uv run python -m catalog_value phase-a
-```
-
-Artifacts land in `outputs/phase_a/`. A narrative of what that checkpoint
-found, with embedding probes, is in [`docs/story.md`](docs/story.md).
+Artifacts land in `outputs/`. Published figures live in `docs/figures/`.
+The write-up is [`docs/story.md`](docs/story.md).
 Tests (no MovieLens download required):
 
 ```bash
@@ -135,9 +128,9 @@ docs/story.md           what a trained checkpoint is saying
 src/catalog_value/
   data/                 MovieLens ingest
   models/audience/      multi-interest user states
-  models/content/       collaborative (later: hybrid/content) title reps
-  models/catalog_value/ coverage function, MCV
-  optimization/         greedy / later: risk-aware portfolios
+  models/content/       collaborative + genome content encoder
+  models/catalog_value/ coverage, MCV, PACV
+  optimization/         greedy MCV portfolios
   visualization/
 experiments/            probes and catalog scoring scripts
 tests/
@@ -147,7 +140,7 @@ tests/
 
 | Phase | Scientific question | Status |
 | --- | --- | --- |
-| A | Are popularity and MCV different? | in progress |
-| B | Do probabilistic / content representations change MCV under cold start? | next |
-| C | Do real U.S. streaming catalogs occupy different audience regions? | later |
-| D | Ablations, PACV, fairness, risk frontiers, write-up | later |
+| A | Are popularity and MCV different? | done |
+| B | Do probabilistic / content representations change MCV under cold start? | done |
+| C | Do real U.S. streaming catalogs occupy different audience regions? | done |
+| D | Ablations, PACV, fairness, risk frontiers, write-up | done |
