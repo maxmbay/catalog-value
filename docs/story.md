@@ -19,6 +19,139 @@ a recommendation to license a title. An unrated movie is not a dislike.
 A title being “on Netflix” is not the same as Netflix putting it on the
 homepage.
 
+## Take-home
+
+**One sentence.** How famous a title is, and how much it adds to a
+library you already have, are different quantities — and you can *see*
+why on a map of who-likes-what. Widely seen bombs live in one
+neighborhood. Less-seen serious films live in another that a stack of
+hits leaves open.
+
+If this were baseball: plate appearances and “wins this player adds to
+*our* roster” are not the same curve. We already knew that in the
+abstract. What this project did is measure the analog on movies, show
+that the split is a place on a map rather than a vibe, and check that
+it does not go away if you hide the ratings, switch the catalog, or
+swap the embedding method.
+
+### What we learned
+
+1. **Popularity is a bad proxy for add-on value.** Against a catalog of
+   the 500 most-rated MovieLens titles, rating count and marginal
+   coverage (MCV) have Spearman **0.07**. That is not “a weak
+   correlation.” It is “these are different objects.”
+2. **The split has a geography, not just a correlation.** High-MCV
+   titles sit in a cinephile / prestige region (*Paths of Glory*, a
+   1957 Kubrick war film; *The Lives of Others*). High-popularity /
+   low-MCV titles sit in a flop cluster (*Super Mario Bros.* 1993,
+   *Batman & Robin*, *Showgirls*) — movies a lot of people rated and
+   did not like. Being an outlier is not enough: you have to be far
+   away in a direction people have *positive* affinity for.
+3. **“Nearby” in the main model means “the same people liked these,”
+   not “same genre.”** Collaborative *Halloween* sits with *Speed* and
+   *American Pie*, not other slashers. *Toy Story* sits with *Up* and
+   also *Saving Private Ryan*. That is co-rating, which is the right
+   geometry for substitution (“if you already cover these raters, you
+   do not need another title they also loved”).
+4. **Scouting grades recover genre without wrecking the value ranking.**
+   A content encoder on tags/genre/year puts *Halloween* with *Texas
+   Chainsaw Massacre* and *The Notebook* with romances. On titles we
+   held out, content-only MCV still ranks like collaborative MCV
+   (Spearman **0.79**). You can score a title with no ratings and
+   mostly know whether it would have been a gap or a duplicate.
+5. **Streaming libraries can be disjoint as lists and overlapping as
+   coverage.** In the MovieLens overlap, services share almost no
+   titles (Jaccard **≤ 0.07**) but sit in similar regions of the map
+   (occupancy cosine 0.68–0.89). Prime has ~10× Hulu’s titles and
+   ~1.4× the coverage. Extra copies of the same neighborhood flatten.
+6. **The ranking is not an artifact of one catalog or one model.**
+   Average MCV over many random catalogs (PACV) and *Paths of Glory*
+   still leads; the flops still sit on the floor. SVD vs neural vs
+   content agree on *order* (Spearman 0.84–0.89), not on scale. Greedy
+   MCV vs “take the most famous” barely moves total coverage at size
+   40 (2.55 vs 2.47) but **does** change the mix: less Action, more
+   Drama / Comedy / Crime.
+
+### What we did not learn
+
+- **Not who should buy what.** No costs, no retention, no “this will
+  add subscribers.” The honest sentence is only: *under this coverage
+  objective, relative to this catalog, these look like gaps and these
+  look like duplicates.*
+- **Not eight kinds of viewer.** The model is built to split a person
+  into tastes (horror vs kids vs comedy). In this fit the mixing
+  weights never moved. Do not say we discovered taste tribes. When
+  every service’s “fingerprint” came out identical, that was the
+  mixture failing, not a fact about Netflix vs Disney+.
+- **Not that the model watched the movie.** Collaborative embeddings
+  do not know plots. Semantic neighbors required tags. Posters,
+  trailers, and 2026 originals are unused.
+- **Not today’s streaming landscape.** MovieLens is mostly pre-2020
+  theatrical films that people bothered to rate. A Netflix original
+  from last year is mostly invisible here. “On Netflix” in TMDB is
+  not “promoted on the homepage.”
+- **Not chemistry.** The coverage function is substitution: once a
+  taste is covered, a similar title adds less. Sequels, universes,
+  “watch A then B” are out of scope.
+- **Not a dollar, a WAR, or a stable unit.** 0.0029 is a number on
+  this scale, with this $\tau$, this audience sample. SVD compresses
+  it; content warps the high end. Quote the *ranking* and the
+  *neighborhoods*, not the axis.
+
+Cold start here is also narrower than it sounds: we hid ratings for
+MovieLens titles that still have rich tags. That is “prospect with a
+full scouting report, no MLB log.” It is not “brand-new show with a
+logline.”
+
+### What is genuinely new — and what is not
+
+**Old news, and we should not pretend otherwise.**
+
+- Fame ≠ marginal contribution is older than this repo. Recsys
+  diversity, submodular retrieval, portfolio theory, and WAR vs
+  counting stats are all the same shape of idea.
+- Collaborative embeddings cluster by co-consumption, not metadata.
+  That is why *Halloween*/*Speed* happens. Textbook.
+- Content models for cold start are textbook.
+- “A bigger library is not linearly more useful” is the first thing
+  anyone says about diminishing returns.
+
+**What this work actually adds** is not the slogan. It is the
+*empirical, inspectable version of the slogan on movies:*
+
+1. **The popularity/value split is a place, not a residual.** You can
+   point at the flop neighborhood and the cinephile gap on one map
+   and name the titles. “Correlation is low” would have been a
+   statistic. “These are the redundant famous movies and these are
+   the gaps, and they live *here*” is the result.
+2. **Outliers are not gems.** Isolation on the map includes busts.
+   Value requires uncovered *positive* affinity, not distance. That
+   is easy to get wrong if you only look at a 2-D scatter and hunt
+   for empty space.
+3. **The two geometries disagree in a useful way, and MCV ranking
+   mostly survives the swap.** Collaborative space is the right one
+   for substitution (who is already covered). Content space is the
+   right one for talking about genre when ratings are missing. We
+   measured that you can move from one to the other without the
+   add-on ranking falling apart. That is the operational claim for
+   cold start, not “the neighbors look nicer.”
+4. **Disjoint libraries can still be the same roster need.** Title
+   overlap and coverage overlap are different matrices. We saw near-
+   zero Jaccard and high occupancy overlap at the same time. “They
+   don’t have the same movies” does not imply “they cover different
+   audiences” on this objective.
+5. **The interesting greedy effect is composition, not the
+   leaderboard.** The $V(S)$ lift over a hits stack is small. The
+   genre mix change is not. If you only report coverage, you miss
+   what the optimizer is actually doing.
+
+If you remember one picture, remember this: **a hits catalog is a
+crowded middle of who-likes-what space; adding another well-known
+bomb does not fill a hole; adding a less-known film from the open
+prestige region does — and that remains true if you hide the ratings,
+reshuffle the roster, or change the embedding.** Everything below is
+evidence for that paragraph.
+
 ```bash
 uv run python -m catalog_value phase-a   # map + popularity vs value
 uv run python -m catalog_value phase-b   # content / cold start
@@ -342,35 +475,12 @@ scale. Do not quote a 0.0029 as a dollar.
 
 ![MCV under neural vs SVD vs content](figures/phase_d/ablation.png)
 
-## What this still is not
-
-- **Not eight named taste tribes** (horror fans vs kids vs comedy).
-  The architecture can represent that. This fit did not.
-- **Not “the model watched the movie.”** Collaborative $z$ is
-  co-rating. Semantic neighbors required genome tags. Plots, posters,
-  and trailers are unused.
-- **Not Netflix’s catalog as you experience it tonight.** TMDB US
-  flatrate ∩ MovieLens core. No ranking, no homepage, mostly older
-  films.
-- **Not “watch A then B” or Marvel-universe complementarity.**
-  Log-sum-exp is substitution: once a taste is covered, similar titles
-  add less. Complements would need a different $V$.
-- **Not retention, revenue, or a buy list.** Preference coverage only.
-  The honest sentence is: *under this coverage objective, relative to
-  this catalog, these titles look like gaps and these look like
-  duplicates.*
-
-## The sentence that survives
-
-Collaborative geometry already separates fame from marginal coverage.
-Content makes that geometry *legible as genre* when ratings are
-missing. Real catalogs overlap on the map without sharing titles.
-Averaging over catalogs does not promote a bust into a gap.
-
-The titles that keep showing up as high-value — *Paths of Glory*,
+The evidence for the [take-home](#take-home) is the figures above.
+Caveats live there too; they are the result, not fine print. The
+titles that keep showing up as high-value — *Paths of Glory*,
 *Notorious* (Hitchcock, 1946), *The Lives of Others* (German, 2006) —
-sit in a region of $z$ that a stack of hits leaves open. The titles
-that keep showing up as worthless add-ons — *Super Mario Bros.*,
-*Batman & Robin*, *Showgirls* — sit where a lot of people already
-told the model they were done. That is a roster-construction result,
-not a taste judgment about whether those movies “are good.”
+sit in a region a hits stack leaves open. The titles that keep showing
+up as worthless add-ons — *Super Mario Bros.*, *Batman & Robin*,
+*Showgirls* — sit where a lot of people already told the model they
+were done. That is roster construction, not a verdict on whether those
+movies “are good.”
