@@ -86,8 +86,10 @@ content encoder and title posteriors, map real US catalogs onto that space,
 and estimate PACV / greedy portfolios. An SVD + k-means backbone remains as
 an ablation (`train.backbone: svd`).
 
-See `docs/model.md` for the compact formalization and
-[`docs/story.md`](docs/story.md) for what the trained checkpoints are saying.
+See `docs/model.md` for the compact formalization,
+[`docs/story.md`](docs/story.md) for a short take-home with figures, and
+[`docs/catalog-value.pdf`](docs/catalog-value.pdf) for the full report
+(motivation, value, assumptions, step-by-step model).
 
 ## Setup
 
@@ -123,8 +125,9 @@ uv run pytest
 ```text
 configs/                experiment configs
 data/{raw,intermediate,processed}/
-docs/model.md           mathematical objects
-docs/story.md           what a trained checkpoint is saying
+docs/report.md          full write-up (source of the PDF)
+docs/catalog-value.pdf  printable report
+docs/story.md           short take-home with figures
 src/catalog_value/
   data/                 MovieLens ingest
   models/audience/      multi-interest user states
