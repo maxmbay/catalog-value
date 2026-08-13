@@ -94,6 +94,8 @@ See `docs/model.md` for the compact formalization.
 
 Requires [uv](https://docs.astral.sh/uv/). Python 3.12.
 
+Bootstrap copies `.env.example` → `.env` if needed, installs [direnv](https://direnv.net/), and hooks **bash** (`~/.bashrc`, login via `~/.bash_profile`) and **zsh** (`~/.zshrc`) so `.env` is loaded when you `cd` into the repo. Put your TMDB key in `.env` (never commit it).
+
 ## Phase A
 
 Learn multi-interest user representations from MovieLens 25M, value a popular
