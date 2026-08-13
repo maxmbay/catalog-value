@@ -30,8 +30,10 @@ term.
 ```
 
 The modeling target is $`p(\mathrm{MCV}_i(S) \mid D)`$, not $P(\text{watch})$
-or $E[\text{rating}]$ alone. Phase A reports a point estimate; later phases
-expose $\mathbb{E}[\mathrm{MCV}]$ and $\mathrm{Var}(\mathrm{MCV})$.
+or $E[\text{rating}]$ alone. Phase A reports a point estimate. Phase B
+puts an isotropic Gaussian around each $z_i$ (content prior, collaborative
+likelihood) and reports $\mathbb{E}[\mathrm{MCV}]$ and
+$\mathrm{Std}(\mathrm{MCV})$ from posterior draws.
 
 ## Portfolio-adjusted value
 
@@ -39,8 +41,8 @@ expose $\mathbb{E}[\mathrm{MCV}]$ and $\mathrm{Var}(\mathrm{MCV})$.
 \phi_i = \mathbb{E}_S[\mathrm{MCV}_i(S)]
 ```
 
-Estimated by Monte Carlo over catalog contexts (Shapley-style). Not required
-for Phase A.
+Estimated by Monte Carlo over catalog contexts (Shapley-style). Phase D
+reports $\phi_i$ for a probe set of high- and low-MCV titles.
 
 ## What this is not
 
