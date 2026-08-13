@@ -86,7 +86,9 @@ as an ablation (`train.backbone: svd`). Later phases add amortized content
 encoders, Bayesian title posteriors, complementarity, real streaming catalogs,
 Shapley/PACV, and uncertainty-aware optimization.
 
-See `docs/model.md` for the compact formalization.
+See `docs/model.md` for the compact formalization and
+[`docs/story.md`](docs/story.md) for a walkthrough of what a trained
+Phase A checkpoint is actually saying — especially the embeddings.
 
 ## Setup
 
@@ -115,7 +117,9 @@ Or all three:
 uv run python -m catalog_value phase-a
 ```
 
-Artifacts land in `outputs/phase_a/`. Tests (no MovieLens download required):
+Artifacts land in `outputs/phase_a/`. A narrative of what that checkpoint
+found, with embedding probes, is in [`docs/story.md`](docs/story.md).
+Tests (no MovieLens download required):
 
 ```bash
 uv run pytest
@@ -127,6 +131,7 @@ uv run pytest
 configs/                experiment configs
 data/{raw,intermediate,processed}/
 docs/model.md           mathematical objects
+docs/story.md           what a trained checkpoint is saying
 src/catalog_value/
   data/                 MovieLens ingest
   models/audience/      multi-interest user states
@@ -134,7 +139,7 @@ src/catalog_value/
   models/catalog_value/ coverage function, MCV
   optimization/         greedy / later: risk-aware portfolios
   visualization/
-experiments/
+experiments/            probes and catalog scoring scripts
 tests/
 ```
 
