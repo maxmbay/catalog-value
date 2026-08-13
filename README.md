@@ -79,6 +79,10 @@ flowchart TD
   pacv --> opt
 ```
 
+The implemented wiring (encoder, content MLP, then a formula for $V$ and MCV)
+is drawn in `docs/figures/architecture/` and walked in
+[`docs/catalog-value.pdf`](docs/catalog-value.pdf).
+
 Phase A implements (1)–(3) with a **taste-token transformer** audience encoder
 (K learned queries over each user's title set), learned title embeddings, and
 an analytical log-sum-exp coverage function. Later phases add a genome-tag
