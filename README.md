@@ -154,5 +154,5 @@ tests/
 | --- | --- | --- |
 | A | Are popularity and MCV different? | done |
 | B | Do probabilistic / content representations change MCV under cold start? | done |
-| C | Do real U.S. streaming catalogs occupy different audience regions? | later |
+| C | Do real U.S. streaming catalogs occupy different audience regions? | done |
 | D | Ablations, PACV, fairness, risk frontiers, write-up | later |
