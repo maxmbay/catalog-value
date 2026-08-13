@@ -79,10 +79,12 @@ flowchart TD
   pacv --> opt
 ```
 
-Phase A implements (1)–(3) with a collaborative SVD backbone, per-user taste
-mixtures, and an analytical log-sum-exp coverage function. Later phases add
-amortized content encoders, Bayesian title posteriors, complementarity,
-real streaming catalogs, Shapley/PACV, and uncertainty-aware optimization.
+Phase A implements (1)–(3) with a **taste-token transformer** audience encoder
+(K learned queries over each user's title set), learned title embeddings, and
+an analytical log-sum-exp coverage function. An SVD + k-means backbone remains
+as an ablation (`train.backbone: svd`). Later phases add amortized content
+encoders, Bayesian title posteriors, complementarity, real streaming catalogs,
+Shapley/PACV, and uncertainty-aware optimization.
 
 See `docs/model.md` for the compact formalization.
 

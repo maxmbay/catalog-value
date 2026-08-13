@@ -20,7 +20,7 @@ def main(argv: list[str] | None = None) -> None:
     )
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("ingest", help="Download MovieLens 25M and build the core subset")
-    sub.add_parser("fit", help="Fit collaborative SVD and multi-interest audience states")
+    sub.add_parser("fit", help="Train the configured backbone (taste-token encoder or SVD)")
     sub.add_parser("figure1", help="Write popularity vs MCV scatter and table")
     sub.add_parser("phase-a", help="Run ingest, fit, and figure1")
     args = parser.parse_args(argv)

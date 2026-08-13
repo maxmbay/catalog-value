@@ -21,3 +21,14 @@ phase_a:
   catalog_size: 500
   n_candidates: 1500
   n_annotate: 12
+
+train:
+  backbone: taste_tokens
+  batch_size: 256
+  epochs: 2
+  lr: 0.001
+  max_history: 64
+  n_holdout: 4
+  n_heads: 4
+  diversity_weight: 0.05
+  entropy_weight: 0.01
