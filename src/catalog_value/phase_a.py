@@ -14,6 +14,7 @@ from catalog_value.models.audience.mixture import (
     save_audience,
     subsample_audience,
 )
+from catalog_value.models.audience.train import export_neural_fit, train_taste_tokens
 from catalog_value.models.catalog_value.mcv import marginal_content_value, value_of_catalog
 from catalog_value.models.content.svd import (
     fit_svd,
@@ -22,6 +23,7 @@ from catalog_value.models.content.svd import (
     save_fit,
     title_reps_from_fit,
 )
+from catalog_value.models.types import TitleReps
 from catalog_value.paths import output_dir
 from catalog_value.visualization.figures import plot_popularity_vs_mcv
 
@@ -39,6 +41,25 @@ def run_ingest(config: Config) -> Path:
 
 
 def run_fit(config: Config) -> None:
+    if config.train.backbone == "taste_tokens":
+        run_fit_neural(config)
+    elif config.train.backbone == "svd":
+        run_fit_svd(config)
+    else:
+        raise ValueError(f"Unknown train.backbone: {config.train.backbone}")
+
+
+def run_fit_neural(config: Config) -> None:
+    core = require_core()
+    ratings_df = pl.read_parquet(core / "ratings.parquet")
+    n_users = pl.read_parquet(core / "users.parquet").height
+    n_movies = pl.read_parquet(core / "movies.parquet").height
+    out = artifact_dir()
+    model = train_taste_tokens(ratings_df, n_users, n_movies, config, out)
+    export_neural_fit(model, ratings_df, n_users, config, out)
+
+
+def run_fit_svd(config: Config) -> None:
     core = require_core()
     ratings_df = pl.read_parquet(core / "ratings.parquet")
     movies = pl.read_parquet(core / "movies.parquet")
@@ -77,18 +98,29 @@ def _popular_rows(movies: pl.DataFrame, n: int) -> np.ndarray:
     )
 
 
+def _load_titles(out: Path, config: Config) -> TitleReps:
+    if config.train.backbone == "taste_tokens":
+        payload = np.load(out / "titles.npz")
+        return TitleReps(
+            z=payload["z"],
+            bias=payload["bias"],
+            movie_row=payload["movie_row"],
+        )
+    fit = load_fit(out / "svd.npz")
+    return title_reps_from_fit(fit)
+
+
 def run_figure1(config: Config) -> Path:
     core = require_core()
     movies = pl.read_parquet(core / "movies.parquet")
     out = artifact_dir()
-    fit = load_fit(out / "svd.npz")
     audience_full, _ = load_audience(out / "audience.npz")
     audience = subsample_audience(
         audience_full,
         n=config.catalog_value.n_eval_users,
         seed=config.seed,
     )
-    titles = title_reps_from_fit(fit)
+    titles = _load_titles(out, config)
 
     catalog_n = config.phase_a.catalog_size
     candidate_n = config.phase_a.n_candidates
@@ -169,9 +201,16 @@ def _print_quadrant_examples(table: pl.DataFrame) -> None:
             print(f"  {row['title']}: n={row['n_ratings']:,}  MCV={row['mcv']:.4f}")
 
 
+def _fit_artifact(config: Config) -> Path:
+    out = artifact_dir()
+    if config.train.backbone == "taste_tokens":
+        return out / "taste_tokens.pt"
+    return out / "svd.npz"
+
+
 def run_phase_a(config: Config) -> None:
     if not (core_dir() / "ratings.parquet").exists():
         run_ingest(config)
-    if not (artifact_dir() / "svd.npz").exists():
+    if not _fit_artifact(config).exists():
         run_fit(config)
     run_figure1(config)
