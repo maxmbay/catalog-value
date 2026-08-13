@@ -36,3 +36,9 @@ src = ["src", "tests", "experiments"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "W"]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.2",
+]
