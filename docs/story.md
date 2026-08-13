@@ -3,7 +3,7 @@
 The full document — motivation, what *value* means, assumptions, and a
 step-by-step model at three levels of detail — is
 [`docs/report.md`](report.md), rendered as
-**[catalog-value.pdf](catalog-value.pdf)** (21 pages).
+**[catalog-value.pdf](catalog-value.pdf)** (24 pages).
 
 This page is the short web version: take-home plus figures.
 

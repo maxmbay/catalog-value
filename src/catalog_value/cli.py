@@ -29,6 +29,10 @@ def main(argv: list[str] | None = None) -> None:
     sub.add_parser("fit", help="Train the configured backbone (taste-token encoder or SVD)")
     sub.add_parser("figure1", help="Write popularity vs MCV scatter and table")
     sub.add_parser("phase-a", help="Run ingest, fit, and figure1")
+    sub.add_parser(
+        "phase-b",
+        help="Content encoder, title posteriors, and cold-start MCV",
+    )
     snap = sub.add_parser(
         "snapshot-catalogs",
         help="Fetch TMDB US watch-provider availability for MovieLens titles",
@@ -37,6 +41,10 @@ def main(argv: list[str] | None = None) -> None:
     sub.add_parser(
         "compare-catalogs",
         help="Score Netflix/Disney+/Prime/Max/Hulu catalogs under V(S) and MCV",
+    )
+    sub.add_parser(
+        "phase-c",
+        help="Map US streaming catalogs onto the title atlas",
     )
     sub.add_parser(
         "phase-d",
