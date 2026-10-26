@@ -1,5 +1,27 @@
 # Portfolio-Aware Content Valuation
 
+**Question.** Against a fixed catalog, how much new audience coverage does a
+title add, and is that the same as how many people have rated it?
+
+**Findings.**
+1. Against a catalog of the 500 most-rated MovieLens titles, rating count and
+   marginal coverage (MCV) have Spearman correlation **0.07**
+   ([`docs/story.md`](docs/story.md)).
+2. On titles held out of the collaborative fit, content-only MCV still ranks
+   like collaborative MCV (Spearman **0.79**).
+3. In the MovieLens overlap, U.S. streaming services share almost no titles
+   (pairwise Jaccard **≤ 0.07**) but occupy similar regions of the map
+   (occupancy cosine **0.68–0.89**). At catalog size 40, greedy MCV coverage
+   is **2.55** vs **2.47** for a popularity stack; the genre mix changes more
+   than total coverage (Action about **43%** → about **25%** under greedy MCV).
+
+![Popularity versus marginal catalog value](docs/figures/phase_a/figure1_popularity_vs_mcv.png)
+
+*Popularity (rating count) vs MCV given the 500 most-rated titles. Dashed lines
+are medians. Source: `docs/figures/phase_a/figure1_popularity_vs_mcv.png`.*
+
+---
+
 The value of a title is contextual. It depends on the audiences it serves, the
 needs already satisfied by the existing catalog, the titles with which it
 substitutes or complements, and our uncertainty about its audience.
